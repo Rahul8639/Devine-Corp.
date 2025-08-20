@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
+import LazyImage from './ui/LazyImage';
 
 interface ProductData {
   id: string;
@@ -34,7 +36,29 @@ const HotProduct: React.FC<HotProductProps> = ({ product }) => {
   };
 
   // Use provided product data or fallback to default
-  const currentProduct = product || defaultProduct;
+  const [localProduct, setLocalProduct] = useState<ProductData | null>(null);
+
+  useEffect(() => {
+    if (product) return; // prefer prop
+    try {
+      const raw = localStorage.getItem('hotProductData');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.name === 'string' && Array.isArray(parsed.images)) {
+          setLocalProduct(parsed);
+        }
+      }
+    } catch {}
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'hotProductData') {
+        try { const nxt = e.newValue ? JSON.parse(e.newValue) : null; setLocalProduct(nxt); } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [product]);
+
+  const currentProduct = product || localProduct || defaultProduct;
   const productImages = currentProduct.images;
 
   const nextImage = () => {
@@ -133,7 +157,12 @@ const HotProduct: React.FC<HotProductProps> = ({ product }) => {
               className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
               onClick={() => selectImage(index)}
             >
-              <img src={image} alt={`Product view ${index + 1}`} />
+              <LazyImage 
+                src={image} 
+                alt={`Product view ${index + 1}`}
+                width={80}
+                height={80}
+              />
             </div>
           ))}
         </div>
@@ -141,10 +170,13 @@ const HotProduct: React.FC<HotProductProps> = ({ product }) => {
         {/* Center - Main Image Slider */}
         <div className="main-image-container">
           <div className="main-image">
-            <img 
+            <LazyImage 
               src={productImages[currentImageIndex]} 
               alt="Product" 
               className={`slide-image ${slideDirection ? `slide-${slideDirection}` : ''}`}
+              width={500}
+              height={400}
+              priority={true}
             />
             <div className="image-nav">
               <button className="nav-left" onClick={prevImage}>

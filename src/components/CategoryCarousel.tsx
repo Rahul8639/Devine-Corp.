@@ -1,7 +1,11 @@
-import React, { useRef } from 'react';
+"use client";
+import React, { useEffect, useRef, useState } from 'react';
+import LazyImage from './ui/LazyImage';
 
 const CategoryCarousel = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [categories, setCategories] = useState<{ title: string; units: number; image: string }[]>([]);
+  const [allProductsCard, setAllProductsCard] = useState<{ image: string; stock: number }>({ image: '/assets/images/example.jpg', stock: 0 });
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -18,39 +22,69 @@ const CategoryCarousel = () => {
   // Generate random units between 5-50
   const generateRandomUnits = () => Math.floor(Math.random() * 46) + 5;
 
-  const categoryCards = [
-    {
-      title: "Product Name",
-      units: generateRandomUnits(),
-      image: "/assets/images/example.jpg"
-    },
-    {
-      title: "Product Name & Long Txt",
-      units: generateRandomUnits(),
-      image: "/assets/images/example.jpg"
-    },
-    {
-      title: "Product Name",
-      units: generateRandomUnits(),
-      image: "/assets/images/example.jpg"
-    },
-    {
-      title: "Product",
-      units: generateRandomUnits(),
-      image: "/assets/images/example.jpg"
-    },
-    {
-      title: "Product",
-      units: generateRandomUnits(),
-      image: "/assets/images/example.jpg"
-    },
-    {
-      title: "Product",
-      units: generateRandomUnits(),
-      image: "/assets/images/example.jpg"
+  const defaultCategories = [
+    { title: 'Product Name', units: generateRandomUnits(), image: '/assets/images/example.jpg' },
+    { title: 'Product Name & Long Txt', units: generateRandomUnits(), image: '/assets/images/example.jpg' },
+    { title: 'Product Name', units: generateRandomUnits(), image: '/assets/images/example.jpg' },
+    { title: 'Product', units: generateRandomUnits(), image: '/assets/images/example.jpg' },
+    { title: 'Product', units: generateRandomUnits(), image: '/assets/images/example.jpg' },
+    { title: 'Product', units: generateRandomUnits(), image: '/assets/images/example.jpg' },
+  ];
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('categoriesData');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter(
+            (c) => c && typeof c.title === 'string' && typeof c.image === 'string' && typeof c.units === 'number'
+          );
+          setCategories(cleaned.length ? cleaned : defaultCategories);
+        } else {
+          setCategories(defaultCategories);
+        }
+      } else {
+        setCategories(defaultCategories);
+      }
+    } catch {
+      setCategories(defaultCategories);
     }
 
-  ];
+    try {
+      const raw = localStorage.getItem('allProductsCardData');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.image === 'string' && typeof parsed.stock === 'number') {
+          setAllProductsCard(parsed);
+        }
+      }
+    } catch {}
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'categoriesData') {
+        try {
+          const nxt = e.newValue ? JSON.parse(e.newValue) : [];
+          if (Array.isArray(nxt)) {
+            const cleaned = nxt.filter(
+              (c: any) => c && typeof c.title === 'string' && typeof c.image === 'string' && typeof c.units === 'number'
+            );
+            setCategories(cleaned.length ? cleaned : defaultCategories);
+          }
+        } catch {}
+      }
+      if (e.key === 'allProductsCardData') {
+        try {
+          const nxt = e.newValue ? JSON.parse(e.newValue) : null;
+          if (nxt && typeof nxt.image === 'string' && typeof nxt.stock === 'number') {
+            setAllProductsCard(nxt);
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   return (
     <>
@@ -78,12 +112,14 @@ const CategoryCarousel = () => {
             ref={scrollContainerRef}
             className="category-card"
           >
-            {categoryCards.map((card, index) => (
+            {categories.map((card, index) => (
               <div key={index} className="card">
                 <div className="card-image">
-                  <img 
+                  <LazyImage 
                     src={card.image} 
                     alt={card.title}
+                    width={250}
+                    height={150}
                   />
                   <button className="card-arrow-btn">
                     <i className="ri-arrow-right-line"></i>
@@ -99,9 +135,11 @@ const CategoryCarousel = () => {
           <div className="all-categories">
             <div className="card">
               <div className="card-image">
-                <img 
-                  src="/assets/images/example.jpg" 
+                <LazyImage 
+                  src={allProductsCard.image} 
                   alt="All Products"
+                  width={250}
+                  height={150}
                 />
                 <button className="card-arrow-btn">
                   <i className="ri-arrow-right-line"></i>
@@ -109,7 +147,7 @@ const CategoryCarousel = () => {
               </div>
               <div className="card-content">
                 <h3>All Products</h3>
-                <p>Total {categoryCards.reduce((total, card) => total + card.units, 0)} Products Available</p>
+                                 <p>Total {allProductsCard.stock} Products Available</p>
               </div>
             </div>
           </div>

@@ -1,0 +1,6 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f3f4f6"/>
+  <rect x="50%" y="50%" width="60" height="60" fill="#d1d5db" rx="8" transform="translate(-30, -30)"/>
+  <path d="M50% 50% L50% 50% L50% 50% Z" stroke="#9ca3af" stroke-width="2" fill="none"/>
+  <text x="50%" y="70%" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Loading...</text>
+</svg>

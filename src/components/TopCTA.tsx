@@ -1,7 +1,8 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const messages = [
+const defaultMessages = [
   'Free Delivery - FAB400',
   'Get 10% Off - DIVINE10',
   'New Arrivals Just Landed!',
@@ -13,25 +14,54 @@ const ANIMATION_DURATION = 0.35;
 const EXIT_FADE_DURATION = 0.20;
 
 const TopCTA = () => {
+  const [messages, setMessages] = useState<string[]>(defaultMessages);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1); // 1 for up/next, -1 for down/prev
 
   useEffect(() => {
+    // Load from localStorage
+    try {
+      const raw = localStorage.getItem('topCtaMessages');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.every((m) => typeof m === 'string')) {
+          setMessages(parsed.length > 0 ? parsed : defaultMessages);
+          setCurrent(0);
+        }
+      }
+    } catch {}
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'topCtaMessages') {
+        try {
+          const nxt = e.newValue ? JSON.parse(e.newValue) : [];
+          if (Array.isArray(nxt) && nxt.every((m) => typeof m === 'string')) {
+            setMessages(nxt.length > 0 ? nxt : defaultMessages);
+            setCurrent(0);
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setDirection(1);
-      setCurrent((prev) => (prev + 1) % messages.length);
+      setCurrent((prev) => (prev + 1) % Math.max(messages.length, 1));
     }, 4000);
     return () => clearInterval(timer);
-  }, [current]);
+  }, [messages]);
 
   const handlePrev = () => {
     setDirection(-1);
-    setCurrent((prev) => (prev - 1 + messages.length) % messages.length);
+    setCurrent((prev) => (prev - 1 + Math.max(messages.length, 1)) % Math.max(messages.length, 1));
   };
 
   const handleNext = () => {
     setDirection(1);
-    setCurrent((prev) => (prev + 1) % messages.length);
+    setCurrent((prev) => (prev + 1) % Math.max(messages.length, 1));
   };
 
   return (

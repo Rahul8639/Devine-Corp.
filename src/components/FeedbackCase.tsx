@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
+import LazyImage from './ui/LazyImage';
 
 const FeedbackCase = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const testimonials = [
+  const [testimonials, setTestimonials] = useState([
     {
       id: 1,
       quote: "A fantastic bit of feedback",
@@ -39,19 +41,30 @@ const FeedbackCase = () => {
       description: "Business Analyst",
       image: "/assets/images/user-profile.png"
     }
-  ];
+  ]);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem('feedbackData');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setTestimonials(parsed);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const visible = Math.max(1, Math.min(3, testimonials.length));
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => 
-        prevIndex === testimonials.length - 3 ? 0 : prevIndex + 1
+        prevIndex >= testimonials.length - visible ? 0 : prevIndex + 1
       );
-    }, 30000); // 30 seconds
-
+    }, 30000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
 
-  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
+  const visibleCount = Math.max(1, Math.min(3, testimonials.length));
+  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + visibleCount);
 
   return (
     <div id="feedback-case">
@@ -64,7 +77,12 @@ const FeedbackCase = () => {
               </div>
               <div className="profile-section">
                 <div className="profile-image">
-                  <img src={testimonial.image} alt={testimonial.name} />
+                  <LazyImage 
+                    src={testimonial.image} 
+                    alt={testimonial.name}
+                    width={50}
+                    height={50}
+                  />
                 </div>
                 <div className="profile-info">
                   <div className="profile-name">{testimonial.name}</div>

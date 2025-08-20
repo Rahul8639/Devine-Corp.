@@ -145,6 +145,28 @@ background: transparent;
   align-items: center;
 }
 
+/* admin variant */
+#login.admin .login-container h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#login.admin .admin-badge {
+  font-size: 12px;
+  background: #ffedd5;
+  color: #b45309;
+  border: 1px solid #f59e0b33;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+#login.admin .login-button button {
+  background-color: #111111;
+  color: #e9e9e9;
+}
+#login.admin .google-login:hover {
+  color: #f59e0b;
+}
+
 .login-container{
   display: flex;
   flex-direction: column;
@@ -490,6 +512,10 @@ margin-top: 2rem;
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .nav-container {
   max-width: 1600px;
@@ -528,6 +554,10 @@ margin-top: 2rem;
   color: #111;
   font-family: 'Gilroy-Medium', 'Gilroy', sans-serif;
   height: 100%;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 .divider {
   width: 1px;
@@ -566,6 +596,123 @@ margin-top: 2rem;
 }
 .user-profile i:hover {
   opacity: 0.7;
+} 
+
+/*************************************************** Profile Panel ***************************************************/
+.profile-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 40;
+}
+.profile-panel-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.profile-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 320px;
+  background: #ffffff;
+  color: #111111;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.2);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+.profile-panel.open {
+  transform: translateX(0);
+}
+.profile-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #efefef;
+}
+.profile-panel-header .profile-brief {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.profile-panel-header .profile-brief img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #171717;
+}
+.profile-panel-header .profile-brief .meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.profile-panel-header .profile-brief .meta .name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.profile-panel-header .profile-brief .meta .role {
+  font-size: 12px;
+  color: #b45309;
+}
+.profile-panel-header .close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.profile-panel-links {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0.5rem;
+}
+.profile-panel-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem;
+  color: #111111;
+  text-decoration: none;
+  border-radius: 8px;
+}
+.profile-panel-links a:hover {
+  background: #f5f5f5;
+}
+.profile-panel-links i {
+  font-size: 1.3rem;
+}
+
+.profile-panel-footer {
+  margin-top: auto;
+  padding: 0.75rem;
+  border-top: 1px solid #efefef;
+}
+.profile-panel-footer .logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #111111;
+  color: #ffffff;
+  cursor: pointer;
+}
+.profile-panel-footer .logout:hover {
+  opacity: 0.9;
 }
 .profile img {
   width: 40px;
@@ -840,6 +987,29 @@ margin-top: 2rem;
   font-family: 'Gilroy-Medium', 'Gilroy', sans-serif;
 }
 
+/* File input alignment to match text input */
+input[type="file"].image-url-input {
+  padding: 0.55rem 0.75rem;
+}
+input[type="file"].image-url-input::-webkit-file-upload-button {
+  margin-right: 0.75rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e9e9e9;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+input[type="file"].image-url-input::file-selector-button {
+  margin-right: 0.75rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e9e9e9;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+
 .image-url-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
@@ -866,6 +1036,51 @@ margin-top: 2rem;
 .add-button:hover {
   background: rgba(255, 255, 255, 0.9);
   transform: translateY(-2px);
+}
+
+.add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Admin dashboard section cards */
+.admin-sections {
+  margin-top: 1rem;
+}
+.admin-sections-title {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.admin-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 120px;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #e9e9e9;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.admin-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+}
+.admin-card i {
+  font-size: 1.6rem;
+}
+.admin-card span {
+  font-size: 0.95rem;
+  text-align: center;
 }
 
 .image-list h3 {
@@ -944,6 +1159,11 @@ margin-top: 2rem;
   background: rgba(255, 255, 255, 0.2);
 }
 
+.move-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .remove-button {
   background: rgba(255, 0, 0, 0.2);
   color: #ff6b6b;
@@ -953,6 +1173,11 @@ margin-top: 2rem;
 .remove-button:hover {
   background: rgba(255, 0, 0, 0.3);
   color: #ff8e8e;
+}
+
+.remove-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ******************************************** Footer ************************************************ */
@@ -2463,3 +2688,44 @@ margin-top: 2rem;
   -moz-user-select: none;
   -ms-user-select: none;
 }
+
+/* Lazy Loading Styles */
+.lazy-image {
+  transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+}
+
+.lazy-image.loading {
+  opacity: 0.7;
+  filter: blur(2px);
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+  filter: none;
+}
+
+/* Image loading skeleton */
+.image-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive image optimization */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Priority images (above the fold)
+   Note: HTML attributes like loading="eager" cannot be set via CSS.
+   Apply priority at the component level when rendering the image. */

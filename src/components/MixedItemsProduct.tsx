@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
+"use client";
+import React, { useEffect, useRef, useState } from 'react';
 
 const MixedItemsProduct = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Sample mixed product data
-  const products = [
+  type MP = { id: number; name: string; price: string; mrp: string; rating: string; image: string; brand: string };
+  const [products, setProducts] = useState<MP[]>([
     {
       id: 1,
       name: "Mixed Product 1",
@@ -60,7 +61,24 @@ const MixedItemsProduct = () => {
       image: "/assets/images/example.jpg",
       brand: "Divine"
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('mixedItemsData');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setProducts(parsed);
+      }
+    } catch {}
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'mixedItemsData') {
+        try { const nxt = e.newValue ? JSON.parse(e.newValue) : []; if (Array.isArray(nxt)) setProducts(nxt); } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const scrollLeft = () => {
     if (carouselRef.current) {

@@ -1,66 +1,47 @@
-import React, { useState, useRef } from 'react';
+"use client";
+import React, { useEffect, useRef, useState } from 'react';
+import LazyImage from './ui/LazyImage';
 
 const FeaturedProduct = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Sample product data
-  const products = [
-    {
-      id: 1,
-      name: "Product Name",
-      price: "₹2550/-",
-      mrp: "5000",
-      rating: "4.2",
-      image: "/assets/images/example.jpg",
-      brand: "Divine"
-    },
-    {
-      id: 2,
-      name: "Product Name",
-      price: "₹2550/-",
-      mrp: "5000",
-      rating: "4.2",
-      image: "/assets/images/example.jpg",
-      brand: "Divine"
-    },
-    {
-      id: 3,
-      name: "Product Name",
-      price: "₹2550/-",
-      mrp: "5000",
-      rating: "4.2",
-      image: "/assets/images/example.jpg",
-      brand: "Divine"
-    },
-    {
-      id: 4,
-      name: "Product Name",
-      price: "₹2550/-",
-      mrp: "5000",
-      rating: "4.2",
-      image: "/assets/images/example.jpg",
-      brand: "Divine"
-    },
-    {
-      id: 5,
-      name: "Product Name",
-      price: "₹2550/-",
-      mrp: "5000",
-      rating: "4.2",
-      image: "/assets/images/example.jpg",
-      brand: "Divine"
-    },
-    {
-      id: 6,
-      name: "Product Name",
-      price: "₹2550/-",
-      mrp: "5000",
-      rating: "4.2",
-      image: "/assets/images/example.jpg",
-      brand: "Divine"
+  type FP = { id: number; name: string; price: string; mrp: string; rating: string; image: string; brand: string };
+  const [products, setProducts] = useState<FP[]>([]);
+  const [title, setTitle] = useState<string>('Mouse & Keyboards');
+
+  useEffect(() => {
+    const fallback: FP[] = Array.from({ length: 6 }).map((_, i) => ({
+      id: i + 1,
+      name: 'Product Name',
+      price: '₹2550/-',
+      mrp: '5000',
+      rating: '4.2',
+      image: '/assets/images/example.jpg',
+      brand: 'Divine',
+    }));
+    try {
+      const raw = localStorage.getItem('featuredProductsData');
+      const t = localStorage.getItem('featuredTitle');
+      if (t) setTitle(t);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setProducts(parsed.length ? parsed : fallback);
+      } else {
+        setProducts(fallback);
+      }
+    } catch {
+      setProducts(fallback);
     }
-  ];
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'featuredProductsData') {
+        try { const nxt = e.newValue ? JSON.parse(e.newValue) : []; if (Array.isArray(nxt)) setProducts(nxt); } catch {}
+      }
+      if (e.key === 'featuredTitle' && e.newValue != null) setTitle(e.newValue);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const scrollLeft = () => {
     if (carouselRef.current) {
@@ -80,7 +61,7 @@ const FeaturedProduct = () => {
     <div id="featured-product">
       <div className="featured-product-container">
         <div className="top-nav">
-          <h1>Mouse & Keyboards</h1>
+          <h1>{title}</h1>
           <div className="nav-buttons">
             <div className="nav-left" onClick={scrollLeft}>
               <i className="ri-arrow-left-s-line"></i>
@@ -94,7 +75,12 @@ const FeaturedProduct = () => {
           {products.map((product) => (
             <div key={product.id} className="product-card">
               <div className="card-image">
-                <img src={product.image} alt={product.name} />
+                <LazyImage 
+                  src={product.image} 
+                  alt={product.name}
+                  width={300}
+                  height={200}
+                />
                 <div className="image-overlays">
                   <div className="rating-overlay">
                     <i className="ri-star-fill"></i>

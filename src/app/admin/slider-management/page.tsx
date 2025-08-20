@@ -1,7 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import LazyImage from '../../../components/ui/LazyImage';
 import ImageSlider from '../../../components/ImageSlider';
+import Navbar from '@/components/Navbar';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/AuthContext';
+import LoadingPage from '@/components/LoadingPage';
 
 const SliderManagement = () => {
   const [images, setImages] = useState([
@@ -30,8 +35,26 @@ const SliderManagement = () => {
     setImages(newImages);
   };
 
+  const router = useRouter();
+  const { role, loading } = useUser();
+
+  const redirectOnceRef = useRef(false);
+  useEffect(() => {
+    if (!loading && role !== 'admin' && !redirectOnceRef.current) {
+      redirectOnceRef.current = true;
+      setTimeout(() => {
+        router.push('/auth/login?admin=1');
+      }, 1200);
+    }
+  }, [loading, role, router]);
+
+  if (loading || role !== 'admin') {
+    return <LoadingPage message={role !== 'admin' ? 'Please login with an admin account' : 'Loading...'} />;
+  }
+
   return (
     <div className="admin-container">
+      <Navbar />
       <div className="admin-header">
         <h1>Slider Management</h1>
         <p>Manage the images displayed in the hero slider</p>
@@ -80,7 +103,12 @@ const SliderManagement = () => {
             {images.map((image, index) => (
               <div key={index} className="image-item">
                 <div className="image-preview">
-                  <img src={image} alt={`Slide ${index + 1}`} />
+                  <LazyImage 
+                    src={image} 
+                    alt={`Slide ${index + 1}`}
+                    width={100}
+                    height={60}
+                  />
                 </div>
                 <div className="image-info">
                   <span className="image-url">{image}</span>

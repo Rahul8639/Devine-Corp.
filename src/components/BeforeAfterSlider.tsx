@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+"use client";
+import React, { useEffect, useRef, useState } from 'react';
 
 interface BeforeAfterSliderProps {
   beforeImage?: string;
@@ -11,6 +12,26 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
   afterImage = "/assets/images/2nd.png",
   title = "Time To Shine"
 }) => {
+  const [images, setImages] = useState({ before: beforeImage, after: afterImage, title });
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('beforeAfterData');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.before === 'string' && typeof parsed.after === 'string') {
+          setImages({ before: parsed.before, after: parsed.after, title: parsed.title || title });
+        }
+      }
+    } catch {}
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'beforeAfterData') {
+        try { const nxt = e.newValue ? JSON.parse(e.newValue) : null; if (nxt) setImages({ before: nxt.before, after: nxt.after, title: nxt.title || title }); } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [title]);
   const [sliderPosition, setSliderPosition] = useState(40);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +108,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
     <div id="compare-img-slider">
       <div className="compare-slider-container">
         <div className="top-text">
-          <h1>{title}</h1>
+          <h1>{images.title}</h1>
         </div>
         <div 
           className="image-comparison-container" 
@@ -95,7 +116,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
           onClick={handleContainerClick}
         >
           <div className="before-image">
-            <img src={beforeImage} alt="Before" />
+            <img src={images.before} alt="Before" />
           </div>
           <div 
             className="after-image" 
@@ -103,7 +124,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
               clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` 
             }}
           >
-            <img src={afterImage} alt="After" />
+            <img src={images.after} alt="After" />
           </div>
           <div 
             className="slider-handle"

@@ -1,12 +1,14 @@
 'use client';
 import { supabase } from '@/lib/supabaseClient';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import 'remixicon/fonts/remixicon.css';
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const isAdminMode = searchParams.get('admin') === '1' || searchParams.get('admin') === 'true';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -90,9 +92,12 @@ export default function LoginPage() {
 
   return (
     <>
-    <div id='login'>
+    <div id='login' className={isAdminMode ? 'admin' : ''}>
       <div className='login-container'>
-      <h1>Login</h1>
+      <h1>
+        {isAdminMode ? 'Admin Login' : 'Login'}
+        {isAdminMode && <span className="admin-badge">Admin</span>}
+      </h1>
       <div id='line'></div>
       <form onSubmit={handleLogin}>
         {error && <div className="error-message">{error}</div>}
